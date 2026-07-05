@@ -3,11 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle, Send } from "lucide-react";
-import { toast } from "sonner";
+import { MessageCircle } from "lucide-react";
 import { UserAvatar } from "@/components/user-avatar";
 import { LikeButton } from "@/components/like-button";
 import { SaveButton } from "@/components/save-button";
+import { ShareButton } from "@/components/share-button";
 import { fromNow } from "@/lib/date";
 import type { Post } from "@/lib/api";
 
@@ -60,27 +60,6 @@ export function PostCard({ post }: { post: Post }) {
 
       <Caption username={post.author.username} caption={post.caption} />
     </article>
-  );
-}
-
-function ShareButton({ postId }: { postId: number }) {
-  function copyLink() {
-    const url = `${window.location.origin}/posts/${postId}`;
-    void navigator.clipboard
-      ?.writeText(url)
-      .then(() => toast.success("Link copied"))
-      .catch(() => toast.error("Couldn't copy the link"));
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={copyLink}
-      aria-label="Copy link to post"
-      className="text-muted-foreground transition-colors hover:text-foreground"
-    >
-      <Send className="size-5" />
-    </button>
   );
 }
 
