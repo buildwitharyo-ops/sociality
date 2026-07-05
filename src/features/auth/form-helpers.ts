@@ -19,16 +19,23 @@ export function applyApiError<T extends FieldValues>(
   }
 
   const fields = error.fields ?? [];
+  const unmapped: string[] = [];
   let mapped = 0;
   for (const field of fields) {
     if ((knownFields as readonly string[]).includes(field.path)) {
       setFieldError(field.path as Path<T>, { message: field.message });
       mapped += 1;
+    } else if (field.message) {
+      unmapped.push(field.message);
     }
   }
 
+  // Never silently drop a field error we couldn't map onto an input (e.g. an
+  // avatar error alongside a username error) — surface it at the form level.
   if (mapped === 0) {
-    setFormError(error.message || GENERIC_ERROR);
+    setFormError(unmapped.length ? unmapped.join(" ") : error.message || GENERIC_ERROR);
+  } else if (unmapped.length) {
+    setFormError(unmapped.join(" "));
   }
 }
 
