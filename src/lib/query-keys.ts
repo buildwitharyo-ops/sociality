@@ -1,0 +1,20 @@
+// Central query-key registry so every feature reads/invalidates the same keys.
+export const queryKeys = {
+  feed: ["feed"] as const,
+  explore: ["posts", "explore"] as const,
+  post: (id: number) => ["post", id] as const,
+  comments: (postId: number) => ["post", postId, "comments"] as const,
+  likers: (postId: number) => ["post", postId, "likes"] as const,
+  me: ["me"] as const,
+  myPosts: ["me", "posts"] as const,
+  myLikes: ["me", "likes"] as const,
+  mySaved: ["me", "saved"] as const,
+  myFollowers: ["me", "followers"] as const,
+  myFollowing: ["me", "following"] as const,
+  user: (username: string) => ["user", username] as const,
+  userPosts: (username: string) => ["user", username, "posts"] as const,
+  userLikes: (username: string) => ["user", username, "likes"] as const,
+  userFollowers: (username: string) => ["user", username, "followers"] as const,
+  userFollowing: (username: string) => ["user", username, "following"] as const,
+  search: (q: string) => ["users", "search", q] as const,
+};

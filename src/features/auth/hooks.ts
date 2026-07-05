@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { login, register, type LoginInput, type RegisterInput } from "@/lib/api";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { clearSession, selectAuth, setSession } from "./auth-slice";
@@ -41,5 +41,21 @@ export function useLogout() {
     dispatch(clearSession());
     queryClient.clear();
     router.replace("/login");
+  };
+}
+
+// Runs a private action only when signed in; otherwise sends the guest to log in
+// with a returnTo. Used by like/save/follow buttons and the comment composer.
+export function useAuthGuard() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  return (action: () => void) => {
+    if (isAuthenticated) {
+      action();
+      return;
+    }
+    router.push(`/login?returnTo=${encodeURIComponent(pathname)}`);
   };
 }

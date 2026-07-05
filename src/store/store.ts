@@ -1,5 +1,6 @@
 import { configureStore, createListenerMiddleware } from "@reduxjs/toolkit";
 import authReducer, { clearSession, setSession } from "@/features/auth/auth-slice";
+import savedReducer from "@/features/posts/saved-slice";
 import { clearStoredSession, saveSession } from "@/features/auth/session";
 
 // Persist the session to storage whenever it changes, so the token survives a
@@ -18,6 +19,7 @@ export function makeStore() {
   return configureStore({
     reducer: {
       auth: authReducer,
+      saved: savedReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().prepend(sessionListener.middleware),

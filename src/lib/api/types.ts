@@ -24,7 +24,7 @@ export type UserChip = {
 export type Post = {
   id: number;
   imageUrl: string;
-  caption: string;
+  caption: string | null;
   createdAt: string;
   author: Author;
   likeCount: number;
@@ -38,7 +38,7 @@ export type Post = {
 export type SavedPost = {
   id: number;
   imageUrl: string;
-  caption: string;
+  caption: string | null;
   createdAt: string;
 };
 
