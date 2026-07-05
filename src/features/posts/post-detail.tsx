@@ -23,6 +23,7 @@ import { ApiError } from "@/lib/api";
 import { useAuth } from "@/features/auth/hooks";
 import { CommentComposer } from "@/features/comments/comment-composer";
 import { CommentList } from "@/features/comments/comment-list";
+import { LikersModal } from "@/features/likes/likers-modal";
 import { usePost } from "./use-post";
 import { useDeletePost } from "./use-delete-post";
 
@@ -31,6 +32,7 @@ export function PostDetail({ id }: { id: number }) {
   const post = usePost(id);
   const deletePost = useDeletePost();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [likersOpen, setLikersOpen] = useState(false);
 
   if (post.isPending) {
     return <PostDetailSkeleton />;
@@ -129,10 +131,19 @@ export function PostDetail({ id }: { id: number }) {
 
           <div className="space-y-3 border-t border-border p-3">
             <div className="flex items-center gap-4">
-              <LikeButton post={data} />
+              <LikeButton post={data} showCount={false} />
               <ShareButton postId={id} />
               <SaveButton postId={id} className="ml-auto" />
             </div>
+            {data.likeCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => setLikersOpen(true)}
+                className="text-sm font-semibold hover:underline"
+              >
+                {data.likeCount} {data.likeCount === 1 ? "like" : "likes"}
+              </button>
+            ) : null}
             <CommentComposer postId={id} />
           </div>
         </div>
@@ -148,6 +159,8 @@ export function PostDetail({ id }: { id: number }) {
         loading={deletePost.isPending}
         onConfirm={() => deletePost.mutate(id)}
       />
+
+      <LikersModal postId={id} open={likersOpen} onOpenChange={setLikersOpen} />
     </div>
   );
 }

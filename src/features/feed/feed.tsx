@@ -38,6 +38,7 @@ export function Feed() {
     hasMore: Boolean(feed.hasNextPage),
     isLoading: feed.isFetchingNextPage,
     onLoadMore: feed.fetchNextPage,
+    disabled: feed.isFetchNextPageError,
   });
 
   if (authLoading || feed.isPending) {
