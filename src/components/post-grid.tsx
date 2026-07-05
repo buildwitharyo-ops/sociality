@@ -11,6 +11,32 @@ import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 
 type GridPost = { id: number; imageUrl: string; caption?: string | null };
 
+// Maps a TanStack infinite query onto PostGrid's props, so each profile tab is a
+// one-liner: <PostGrid {...toGridProps(query)} empty={...} />.
+type InfiniteGridQuery<T extends GridPost> = {
+  data?: { pages: Array<{ items: T[] }> };
+  isPending: boolean;
+  isError: boolean;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  isFetchNextPageError: boolean;
+  fetchNextPage: () => void;
+  refetch: () => void;
+};
+
+export function toGridProps<T extends GridPost>(query: InfiniteGridQuery<T>) {
+  return {
+    items: query.data?.pages.flatMap((page) => page.items) ?? [],
+    isPending: query.isPending,
+    isError: query.isError,
+    hasNextPage: Boolean(query.hasNextPage),
+    isFetchingNextPage: query.isFetchingNextPage,
+    isFetchNextPageError: query.isFetchNextPageError,
+    onLoadMore: query.fetchNextPage,
+    onRetry: query.refetch,
+  };
+}
+
 // Reusable 3-column post grid with infinite scroll and its own loading / empty /
 // error states. Powers the profile tabs (Gallery / Saved / Liked) in Step 9.
 export function PostGrid({
