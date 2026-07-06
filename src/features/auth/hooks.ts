@@ -47,11 +47,13 @@ export function useLogout() {
 // Runs a private action only when signed in; otherwise sends the guest to log in
 // with a returnTo. Used by like/save/follow buttons and the comment composer.
 export function useAuthGuard() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   return (action: () => void) => {
+    // Still rehydrating the session — don't bounce a possibly-signed-in user.
+    if (isLoading) return;
     if (isAuthenticated) {
       action();
       return;

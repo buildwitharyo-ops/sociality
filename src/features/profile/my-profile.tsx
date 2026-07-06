@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { Bookmark, Heart, ImageOff, LayoutGrid, Share2 } from "lucide-react";
-import { toast } from "sonner";
+import { Bookmark, Heart, ImageOff, LayoutGrid } from "lucide-react";
 import { ProfileHeader } from "@/components/profile-header";
-import { PostGrid, toGridProps } from "@/components/post-grid";
+import { ShareProfileButton } from "@/components/share-profile-button";
+import { PostGrid } from "@/components/post-grid";
+import { toListProps } from "@/lib/infinite";
 import { ErrorState } from "@/components/error-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,7 +87,7 @@ function GalleryTab() {
   const query = useMyPosts();
   return (
     <PostGrid
-      {...toGridProps(query)}
+      {...toListProps(query)}
       empty={{
         icon: ImageOff,
         title: "Your story starts here",
@@ -113,7 +114,7 @@ function SavedTab() {
 
   return (
     <PostGrid
-      {...toGridProps(query)}
+      {...toListProps(query)}
       empty={{
         icon: Bookmark,
         title: "No saved posts yet",
@@ -127,29 +128,13 @@ function LikedTab() {
   const query = useMyLikes();
   return (
     <PostGrid
-      {...toGridProps(query)}
+      {...toListProps(query)}
       empty={{
         icon: Heart,
         title: "No liked posts yet",
         description: "Posts you like will show up here.",
       }}
     />
-  );
-}
-
-function ShareProfileButton({ username }: { username: string }) {
-  function copyLink() {
-    const url = `${window.location.origin}/profile/${username}`;
-    void navigator.clipboard
-      ?.writeText(url)
-      .then(() => toast.success("Profile link copied"))
-      .catch(() => toast.error("Couldn't copy the link"));
-  }
-
-  return (
-    <Button variant="outline" size="icon" onClick={copyLink} aria-label="Share profile" className="rounded-full">
-      <Share2 className="size-4" />
-    </Button>
   );
 }
 

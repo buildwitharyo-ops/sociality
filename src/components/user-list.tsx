@@ -2,29 +2,16 @@
 
 import type { ComponentType, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
-import { PostGridItem } from "@/components/post-grid-item";
-import { PostGridSkeleton } from "@/components/post-skeletons";
+import { UserChip } from "@/components/user-chip";
 import { EmptyState } from "@/components/empty-state";
 import { ErrorState } from "@/components/error-state";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import type { UserChip as UserChipData } from "@/lib/api";
 
-type GridPost = { id: number; imageUrl: string; caption?: string | null };
-
-// Reusable 3-column post grid with infinite scroll and its own loading / empty /
-// error states. Powers the profile tabs (Gallery / Saved / Liked) in Step 9.
-export function PostGrid({
-  items,
-  isPending,
-  isError,
-  hasNextPage,
-  isFetchingNextPage,
-  isFetchNextPageError = false,
-  onLoadMore,
-  onRetry,
-  empty,
-}: {
-  items: GridPost[];
+export type UserListProps = {
+  items: UserChipData[];
   isPending: boolean;
   isError: boolean;
   hasNextPage: boolean;
@@ -38,7 +25,21 @@ export function PostGrid({
     description?: string;
     action?: ReactNode;
   };
-}) {
+};
+
+// Reusable paginated list of UserChips with its own loading / empty / error
+// states. Powers the "Liked by" surfaces and the followers/following pages.
+export function UserList({
+  items,
+  isPending,
+  isError,
+  hasNextPage,
+  isFetchingNextPage,
+  isFetchNextPageError = false,
+  onLoadMore,
+  onRetry,
+  empty,
+}: UserListProps) {
   const sentinelRef = useInfiniteScroll({
     hasMore: hasNextPage,
     isLoading: isFetchingNextPage,
@@ -47,7 +48,19 @@ export function PostGrid({
   });
 
   if (isPending) {
-    return <PostGridSkeleton count={9} />;
+    return (
+      <div className="space-y-4">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className="flex items-center gap-3">
+            <Skeleton className="size-8 rounded-full" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-2.5 w-16" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   if (isError && items.length === 0) {
@@ -66,12 +79,10 @@ export function PostGrid({
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-3 gap-1">
-        {items.map((post) => (
-          <PostGridItem key={post.id} post={post} />
-        ))}
-      </div>
+    <div className="space-y-4">
+      {items.map((user) => (
+        <UserChip key={user.id} user={user} />
+      ))}
       <div ref={sentinelRef} aria-hidden className="h-px" />
       {isFetchingNextPage ? (
         <div className="flex justify-center py-4">
