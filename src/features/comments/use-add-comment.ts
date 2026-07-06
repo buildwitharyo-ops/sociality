@@ -56,12 +56,18 @@ export function useAddComment(postId: number) {
       bumpCommentCount(queryClient, postId, -1);
     },
     onSuccess: (real, _text, context) => {
-      if (context?.hadData) {
+      const current = queryClient.getQueryData<CommentPages>(queryKeys.comments(postId));
+      const tempStillThere =
+        context?.hadData &&
+        current?.pages.some((page) => page.items.some((comment) => comment.id === context.tempId));
+
+      if (tempStillThere) {
         queryClient.setQueryData<CommentPages>(queryKeys.comments(postId), (old) =>
-          replaceComment(old, context.tempId, real),
+          replaceComment(old, context!.tempId, real),
         );
       } else {
-        // Nothing was shown optimistically — pull the truth from the server.
+        // The optimistic row is gone (never inserted, or a refetch dropped it) —
+        // reconcile the list and count from the server.
         void queryClient.invalidateQueries({ queryKey: queryKeys.comments(postId) });
         void queryClient.invalidateQueries({ queryKey: queryKeys.post(postId) });
       }

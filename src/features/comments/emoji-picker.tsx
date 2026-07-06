@@ -33,6 +33,7 @@ export function EmojiPicker({ onSelect }: { onSelect: (emoji: string) => void })
             <button
               key={emoji}
               type="button"
+              aria-label={`Insert ${emoji} emoji`}
               onClick={() => {
                 onSelect(emoji);
                 setOpen(false);

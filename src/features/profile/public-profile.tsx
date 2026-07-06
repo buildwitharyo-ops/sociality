@@ -8,6 +8,7 @@ import { ShareProfileButton } from "@/components/share-profile-button";
 import { PostGrid } from "@/components/post-grid";
 import { FollowButton } from "@/components/follow-button";
 import { EmptyState } from "@/components/empty-state";
+import { ErrorState } from "@/components/error-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,15 +31,19 @@ export function PublicProfile({ username }: { username: string }) {
     const notFound = profile.error instanceof ApiError && profile.error.status === 404;
     return (
       <div className="mx-auto w-full max-w-lg p-4">
-        <EmptyState
-          title={notFound ? "User not found" : "Couldn't load this profile"}
-          description={notFound ? "This account may not exist." : "Please try again."}
-          action={
-            <Button asChild variant="outline" className="rounded-full">
-              <Link href="/">Back to feed</Link>
-            </Button>
-          }
-        />
+        {notFound ? (
+          <EmptyState
+            title="User not found"
+            description="This account may not exist."
+            action={
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/">Back to feed</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <ErrorState title="Couldn't load this profile" onRetry={() => profile.refetch()} />
+        )}
       </div>
     );
   }

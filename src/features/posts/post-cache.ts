@@ -1,5 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { Post } from "@/lib/api";
+import { queryKeys } from "@/lib/query-keys";
 
 export type PostPatch = Partial<Pick<Post, "likedByMe" | "likeCount" | "commentCount">>;
 type PostUpdater = (post: Post) => Post;
@@ -44,6 +45,15 @@ export function findPostInCaches(queryClient: QueryClient, postId: number): Post
     if (found) return found;
   }
   return undefined;
+}
+
+// The post's current cached state, wherever it lives — the single-post detail
+// cache first, then any list cache. Lets the like toggle read the up-to-date
+// state instead of a possibly-stale click-time prop.
+export function readCachedPost(queryClient: QueryClient, postId: number): Post | undefined {
+  const detail = queryClient.getQueryData<Post>(queryKeys.post(postId));
+  if (detail && typeof detail === "object" && "likeCount" in detail) return detail;
+  return findPostInCaches(queryClient, postId);
 }
 
 function updateData(data: unknown, postId: number, update: PostUpdater): unknown {

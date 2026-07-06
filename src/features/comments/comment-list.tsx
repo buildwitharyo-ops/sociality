@@ -28,7 +28,7 @@ export function CommentList({ postId }: { postId: number }) {
     );
   }
 
-  if (comments.isError) {
+  if (comments.isError && items.length === 0) {
     return <ErrorState onRetry={() => comments.refetch()} />;
   }
 

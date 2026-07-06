@@ -9,11 +9,12 @@ import { setSaved } from "./saved-slice";
 // Optimistic save toggle. Saved state lives in the Redux `saved` slice (the API
 // has no per-post saved flag), flipped immediately and reconciled on settle. On
 // success we also refresh the Saved tab so its grid stays in sync.
-export function useToggleSave() {
+export function useToggleSave(scopePostId?: number) {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
 
   return useMutation({
+    scope: scopePostId != null ? { id: `save:${scopePostId}` } : undefined,
     mutationFn: ({ postId, saved }: { postId: number; saved: boolean }) =>
       saved ? unsavePost(postId) : savePost(postId),
     onMutate: ({ postId, saved }) => {

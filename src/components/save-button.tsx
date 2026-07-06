@@ -9,7 +9,7 @@ import { useToggleSave } from "@/features/posts/use-toggle-save";
 
 export function SaveButton({ postId, className }: { postId: number; className?: string }) {
   const saved = useAppSelector((state) => selectIsSaved(state, postId));
-  const toggle = useToggleSave();
+  const toggle = useToggleSave(postId);
   const guard = useAuthGuard();
 
   return (

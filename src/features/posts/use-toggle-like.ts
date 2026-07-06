@@ -2,26 +2,32 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likePost, unlikePost } from "@/lib/api";
-import { patchPostInCaches } from "./post-cache";
+import { patchPostInCaches, readCachedPost } from "./post-cache";
 
 export type LikeablePost = { id: number; likedByMe: boolean; likeCount: number };
 
-// Optimistic like toggle. Flips the post in every cache immediately, rolls back
-// on error, and reconciles with the server's authoritative count on success.
-export function useToggleLike() {
+// Optimistic like toggle. Pass the post id to `scope` so rapid toggles for the
+// SAME post serialize instead of racing. The current state is read from the
+// cache (not the click-time prop, which can be stale after a double-click):
+// onMutate flips the cached value, and the request is chosen to match the
+// resulting target state.
+export function useToggleLike(scopePostId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (post: LikeablePost) =>
-      post.likedByMe ? unlikePost(post.id) : likePost(post.id),
+    scope: scopePostId != null ? { id: `like:${scopePostId}` } : undefined,
+    mutationFn: (post: LikeablePost) => {
+      // onMutate has already flipped the cache to the target — match it.
+      const target = readCachedPost(queryClient, post.id) ?? post;
+      return target.likedByMe ? likePost(post.id) : unlikePost(post.id);
+    },
     onMutate: async (post) => {
-      // Stop any in-flight refetch from overwriting the optimistic patch.
       await queryClient.cancelQueries();
-      // Snapshot the caches so we can restore them exactly on error.
       const previous = queryClient.getQueriesData({});
+      const current = readCachedPost(queryClient, post.id) ?? post;
       patchPostInCaches(queryClient, post.id, {
-        likedByMe: !post.likedByMe,
-        likeCount: post.likeCount + (post.likedByMe ? -1 : 1),
+        likedByMe: !current.likedByMe,
+        likeCount: current.likeCount + (current.likedByMe ? -1 : 1),
       });
       return { previous };
     },

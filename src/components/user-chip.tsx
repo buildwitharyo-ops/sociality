@@ -11,13 +11,7 @@ import type { UserChip as UserChipData } from "@/lib/api";
 
 // Self-contained: the follow button reads its state from the follows slice
 // (falling back to the API's isFollowedByMe) and toggles via useToggleFollow.
-export function UserChip({
-  user,
-  showFollow = true,
-}: {
-  user: UserChipData;
-  showFollow?: boolean;
-}) {
+export function UserChip({ user }: { user: UserChipData }) {
   const guard = useAuthGuard();
   const toggle = useToggleFollow(user.username);
   const known = useAppSelector((state) => selectIsFollowing(state, user.username));
@@ -35,7 +29,7 @@ export function UserChip({
           <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
         </div>
       </Link>
-      {showFollow && !user.isMe ? (
+      {!user.isMe ? (
         <FollowButton
           isFollowing={isFollowing}
           isPending={toggle.isPending}

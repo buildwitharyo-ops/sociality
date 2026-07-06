@@ -14,7 +14,7 @@ export function LikeButton({
   showCount?: boolean;
   className?: string;
 }) {
-  const toggle = useToggleLike();
+  const toggle = useToggleLike(post.id);
   const guard = useAuthGuard();
 
   return (
