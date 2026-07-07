@@ -1,6 +1,11 @@
 import { getStoredToken } from "./token";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+// Fall back to the hosted API so the app still works when the env var isn't set
+// (e.g. a fresh deploy where it hasn't been configured yet). Point somewhere else
+// by setting NEXT_PUBLIC_API_BASE_URL.
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://be-social-media-api-production.up.railway.app";
 
 /** A single field error from a 400 validation response. */
 export type FieldError = { path: string; message: string };
